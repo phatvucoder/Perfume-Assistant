@@ -1,0 +1,62 @@
+flowchart TD
+    A[Start: User Input] --> B[Node 1: Input Analysis]
+    B --> C[Node 2: Router]
+    
+    C -->|harmful/not relevant| D[Node 7: Rejection Response]
+    C -->|low capability| E[Node 7: Handoff Prompt]
+    C -->|greeting/chit_chat| F[Node 7: Simple Response]
+    C -->|ask_info/consult/compare/similar| G[Node 3: Knowledge Retrieval]
+    C -->|check_stock/ask_price| H[Node 5: Direct Tool Use]
+    C -->|purchase_intent| G2[Node 3: Knowledge Retrieval\nwith is_purchase_intent=True]
+    
+    G --> I[Node 4: Inventory Check & Filtering]
+    G2 --> I
+    
+    I --> J[Node 6: Response Generation]
+    H --> J
+    D --> K[Node 8: Update Memory]
+    E --> K
+    F --> K
+    J --> K
+    
+    K --> L[End: Send Response to User]
+    
+    subgraph "Node 1: Input Analysis"
+        B1[Analyze user input]
+        B2[Check Safety, Relevance, Intent]
+        B3[Identify Entity, Capability]
+        B4[Output JSON analysis_result]
+        B1 --> B2 --> B3 --> B4
+    end
+    
+    subgraph "Node 3: Knowledge Retrieval"
+        G1[Build semantic query]
+        G3[Call search_fragrance_knowledge]
+        G4[Handle typos if needed]
+        G5[Output context_docs]
+        G1 --> G3 --> G4 --> G5
+    end
+    
+    subgraph "Node 4: Inventory Check"
+        I1[Extract brand, name]
+        I2[Call check_inventory]
+        I3[Add stock_status to metadata]
+        I4[Prioritize in-stock items if purchase intent]
+        I1 --> I2 --> I3 --> I4
+    end
+    
+    subgraph "Node 5: Direct Tool Use"
+        H1[Check intent type]
+        H2[Call appropriate tool]
+        H3[Output tool_result]
+        H1 --> H2 --> H3
+    end
+    
+    subgraph "Node 6: Response Generation"
+        J1[Build comprehensive prompt]
+        J2[Include conversation history]
+        J3[Include retrieved information]
+        J4[Determine if show_image needed]
+        J5[Generate final response]
+        J1 --> J2 --> J3 --> J4 --> J5
+    end
